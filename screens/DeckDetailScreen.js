@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, FlatList, StyleSheet, ActivityIndicator,
-  TouchableOpacity, ScrollView, Image, Alert,
+  TouchableOpacity, ScrollView, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import cardApi from '../api/cardApi';
@@ -9,38 +9,14 @@ import deckApi from '../api/deckApi';
 import BottomSheet from '../components/BottomSheet';
 import useGen from '../hooks/useGen';
 
-export default function DeckDetailScreen({ route, navigation }) {
+export default function DeckDetailScreen({ route }) {
   const { deck } = route.params;
   const [cardMap, setCardMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [totalPrice, setTotalPrice] = useState(null);
   const [recomVisible, setRecomVisible] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const { loadingRecom, recommendations, fetchDeckRecom } = useGen();
-
-  async function handleDeleteDeck() {
-    Alert.alert(
-      'Delete Deck',
-      `Are you sure you want to delete "${deck.deckName}"? This cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete', style: 'destructive',
-          onPress: async () => {
-            setDeleting(true);
-            try {
-              await deckApi.deleteDeck({ userId: deck.userId, deckName: deck.deckName });
-              navigation.goBack();
-            } catch (err) {
-              Alert.alert('Error', err.message);
-              setDeleting(false);
-            }
-          },
-        },
-      ]
-    );
-  }
 
   useEffect(() => {
     const firstCard = deck.cards?.[0]?.card;
@@ -124,16 +100,6 @@ export default function DeckDetailScreen({ route, navigation }) {
           activeOpacity={0.8}
         >
           <Text style={styles.recomBtnText}>Recommendation</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteBtn}
-          onPress={handleDeleteDeck}
-          activeOpacity={0.8}
-          disabled={deleting}
-        >
-          {deleting
-            ? <ActivityIndicator color="#e05c5c" />
-            : <Text style={styles.deleteBtnText}>Delete Deck</Text>}
         </TouchableOpacity>
       </View>
 
@@ -261,7 +227,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: '#0d0d0d',
-    gap: 10,
   },
   recomBtn: {
     backgroundColor: '#1a1a2e',
@@ -272,16 +237,6 @@ const styles = StyleSheet.create({
     borderColor: '#c9a84c',
   },
   recomBtnText: { color: '#c9a84c', fontWeight: '800', fontSize: 15 },
-  deleteBtn: {
-    backgroundColor: '#1a1a2e',
-    borderRadius: 10,
-    paddingVertical: 13,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e05c5c',
-  },
-  deleteBtnText: { color: '#e05c5c', fontWeight: '800', fontSize: 15 },
-
   recomTitle: { fontSize: 18, fontWeight: '800', color: '#c9a84c', marginBottom: 14 },
   recomText: { fontSize: 14, color: '#e0e0e0', lineHeight: 22, marginBottom: 20 },
 

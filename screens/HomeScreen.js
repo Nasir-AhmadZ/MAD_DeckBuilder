@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, TextInput, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Notifications from 'expo-notifications';
-import useBasket from '../hooks/useBasket';
 import useNotifications from '../hooks/useNotifications';
 import authApi from '../api/authApi';
 import deckApi from '../api/deckApi';
@@ -20,7 +18,6 @@ function getUserIdFromToken(token) {
 }
 
 export default function HomeScreen({ navigation }) {
-  const { basket, loadBasket } = useBasket('demo-user-1');
   const { expoPushToken } = useNotifications();
   const { token, logout } = useAuth();
   const userId = getUserIdFromToken(token);
@@ -63,28 +60,12 @@ export default function HomeScreen({ navigation }) {
   }, [expoPushToken]);
 
   useEffect(() => {
-    loadBasket().catch(() => {});
     loadDecks();
     const unsubscribe = navigation.addListener('focus', () => {
-      loadBasket().catch(() => {});
       loadDecks();
     });
     return unsubscribe;
   }, [navigation]);
-
-  useEffect(() => {
-    const itemCount = basket?.items?.length ?? 0;
-    if (itemCount > 0) {
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'Items in your basket',
-          body: `You have ${itemCount} item(s) waiting — don't forget to checkout!`,
-          channelId: 'default',
-        },
-        trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 5 },
-      });
-    }
-  }, [basket]);
 
   return (
     <SafeAreaView style={styles.safe}>
