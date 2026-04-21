@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, FlatList, StyleSheet, ActivityIndicator,
-  TouchableOpacity, ScrollView, Image,
+  TouchableOpacity, ScrollView, Image, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import cardApi from '../api/cardApi';
 import deckApi from '../api/deckApi';
 import BottomSheet from '../components/BottomSheet';
 import useGen from '../hooks/useGen';
+import useDeck from '../hooks/useDeck';
 
-export default function DeckDetailScreen({ route }) {
+export default function DeckDetailScreen({ route, navigation }) {
   const { deck } = route.params;
   const [cardMap, setCardMap] = useState({});
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ export default function DeckDetailScreen({ route }) {
   const [totalPrice, setTotalPrice] = useState(null);
   const [recomVisible, setRecomVisible] = useState(false);
   const { loadingRecom, recommendations, fetchDeckRecom } = useGen();
+  const { handleRemoveCard, handleDeleteDeck, deletingDeck } = useDeck(deck.userId);
 
   useEffect(() => {
     const firstCard = deck.cards?.[0]?.card;
@@ -64,23 +66,35 @@ export default function DeckDetailScreen({ route }) {
             const type = card?.type ?? '';
             const manaCost = card?.manaCost ?? '';
             return (
-              <TouchableOpacity
-                style={styles.cardRow}
-                onPress={() => setSelectedCard({ ...card, quantity: item.quantity })}
-                activeOpacity={0.8}
-              >
-                {!!card?.imageUrl && (
-                  <Image source={{ uri: card.imageUrl }} style={styles.cardThumb} />
-                )}
-                <View style={styles.cardInfo}>
-                  <Text style={styles.cardName}>{name}</Text>
-                  {!!type && <Text style={styles.cardType}>{type}</Text>}
-                </View>
-                <View style={styles.cardRight}>
-                  {!!manaCost && <Text style={styles.manaCost}>{manaCost}</Text>}
-                  <Text style={styles.quantity}>x{item.quantity}</Text>
-                </View>
-              </TouchableOpacity>
+              <View style={styles.cardRow}>
+                <TouchableOpacity
+                  style={styles.cardRowContent}
+                  onPress={() => setSelectedCard({ ...card, quantity: item.quantity })}
+                  activeOpacity={0.8}
+                >
+                  {!!card?.imageUrl && (
+                    <Image source={{ uri: card.imageUrl }} style={styles.cardThumb} />
+                  )}
+                  <View style={styles.cardInfo}>
+                    <Text style={styles.cardName}>{name}</Text>
+                    {!!type && <Text style={styles.cardType}>{type}</Text>}
+                  </View>
+                  <View style={styles.cardRight}>
+                    {!!manaCost && <Text style={styles.manaCost}>{manaCost}</Text>}
+                    <Text style={styles.quantity}>x{item.quantity}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.removeBtn}
+                  onPress={() => {
+                    const cardId = typeof item.card === 'string' ? item.card : item.card?._id;
+                    handleRemoveCard(cardId, deck.deckName, () => navigation.goBack());
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.removeX}>✕</Text>
+                </TouchableOpacity>
+              </View>
             );
           }}
         />
@@ -100,6 +114,22 @@ export default function DeckDetailScreen({ route }) {
           activeOpacity={0.8}
         >
           <Text style={styles.recomBtnText}>Recommendation</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.deleteRow}>
+        <TouchableOpacity
+          style={styles.deleteBtn}
+          onPress={() =>
+            Alert.alert('Delete Deck', `Are you sure you want to delete "${deck.deckName}"?`, [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Delete', style: 'destructive', onPress: () => handleDeleteDeck(deck.deckName, () => navigation.goBack()) },
+            ])
+          }
+          disabled={deletingDeck}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.deleteBtnText}>{deletingDeck ? 'Deleting...' : 'Delete Deck'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -169,13 +199,28 @@ const styles = StyleSheet.create({
   cardRow: {
     backgroundColor: '#1a1a2e',
     borderRadius: 10,
-    padding: 14,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#2a2a4a',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+  },
+  cardRowContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+  },
+  removeBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeX: {
+    fontSize: 18,
+    color: '#ff4444',
+    fontWeight: '700',
   },
   cardThumb: { width: 40, height: 56, borderRadius: 4, marginRight: 12 },
   cardInfo: { flex: 1 },
@@ -239,6 +284,21 @@ const styles = StyleSheet.create({
   recomBtnText: { color: '#c9a84c', fontWeight: '800', fontSize: 15 },
   recomTitle: { fontSize: 18, fontWeight: '800', color: '#c9a84c', marginBottom: 14 },
   recomText: { fontSize: 14, color: '#e0e0e0', lineHeight: 22, marginBottom: 20 },
+
+  deleteRow: {
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    backgroundColor: '#0d0d0d',
+  },
+  deleteBtn: {
+    backgroundColor: '#1a1a2e',
+    borderRadius: 10,
+    paddingVertical: 13,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ff4444',
+  },
+  deleteBtnText: { color: '#ff4444', fontWeight: '800', fontSize: 15 },
 
   closeBtn: {
     backgroundColor: '#c9a84c',

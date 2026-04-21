@@ -7,6 +7,8 @@ export default function useDeck(userId) {
   const [importing, setImporting] = useState(false);
   const [creatingDeck, setCreatingDeck] = useState(false);
   const [addingCard, setAddingCard] = useState(false);
+  const [removingCard, setRemovingCard] = useState(false);
+  const [deletingDeck, setDeletingDeck] = useState(false);
 
   async function handleImportCard(importName, onSuccess) {
     if (!importName.trim()) return Alert.alert('Validation', 'Card name is required');
@@ -51,12 +53,43 @@ export default function useDeck(userId) {
     }
   }
 
+  async function handleRemoveCard(cardId, cardDeckName, onSuccess) {
+    if (!cardId || !cardDeckName.trim()) return Alert.alert('Validation', 'Card ID and deck name are required');
+    setRemovingCard(true);
+    try {
+      await deckApi.deleteCard({ userId, cardId, deckName: cardDeckName.trim() });
+      Alert.alert('Success', `Card removed from "${cardDeckName.trim()}"`);
+      onSuccess?.();
+    } catch (err) {
+      Alert.alert('Error', String(err));
+    } finally {
+      setRemovingCard(false);
+    }
+  }
+
+  async function handleDeleteDeck(deckName, onSuccess) {
+    setDeletingDeck(true);
+    try {
+      await deckApi.deleteDeck({ userId, deckName });
+      Alert.alert('Success', `Deck "${deckName}" deleted`);
+      onSuccess?.();
+    } catch (err) {
+      Alert.alert('Error', String(err));
+    } finally {
+      setDeletingDeck(false);
+    }
+  }
+
   return {
     importing,
     creatingDeck,
     addingCard,
+    removingCard,
+    deletingDeck,
     handleImportCard,
     handleCreateDeck,
     handleAddCard,
+    handleRemoveCard,
+    handleDeleteDeck,
   };
 }

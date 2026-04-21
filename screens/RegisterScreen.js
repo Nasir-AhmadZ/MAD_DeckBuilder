@@ -35,7 +35,7 @@ export default function RegisterScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
 
           <View style={styles.header}>
-            <Text style={styles.appTitle}>ShopDemo</Text>
+            <Text style={styles.appTitle}>MTG Deck Builder</Text>
             <Text style={styles.tagline}>Create Your Account</Text>
           </View>
 

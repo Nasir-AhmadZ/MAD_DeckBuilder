@@ -71,7 +71,7 @@ export default function HomeScreen({ navigation }) {
     <SafeAreaView style={styles.safe}>
 
       <View style={styles.topBar}>
-        <Text style={styles.appName}>ShopDemo</Text>
+        <Text style={styles.appName}>MTG Deck Builder</Text>
         <TouchableOpacity style={styles.logoutBtn} onPress={logout} activeOpacity={0.8}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>

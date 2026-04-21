@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "ShopDemo",
-    "slug": "ShopDemo",
+    "name": "MTG_Deck_Builder",
+    "slug": "MTG_Deck_Builder",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/mtg-logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/mtg-logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,11 +17,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/mtg-logo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.ShopDemo"
+      "package": "com.anonymous.MTG_Deck_Builder"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,7 +30,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
+          "icon": "./assets/mtg-logo.png",
           "color": "#ffffff"
         }
       ],
@@ -41,6 +41,6 @@
         "projectId": "b5341bb9-4e49-43a9-afe3-86eca9ac3a97"
       }
     },
-    "owner": "fergusdowney"
+    "owner": "NasirAhmad"
   }
 }
